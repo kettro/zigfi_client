@@ -1,0 +1,52 @@
+{
+  "nodes": [
+    {
+      "name": "upper-level",
+      "num-devices": 2,
+      "devices":[
+        {
+          "name": "light-1",
+          "controls": [
+            {
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "type": "gradient",
+              "value": 2
+            }
+          ]
+        },
+        {
+          "name": "light-2",
+          "controls": [
+            {
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "type": "gradient",
+              "value": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "main-level",
+      "num-devices": 1,
+      "devices":[
+        {
+          "name": "temp-sensor-1",
+          "controls": [
+            {
+              "type": "status",
+              "value": 12
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

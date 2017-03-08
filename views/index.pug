@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  h1 #{title} hello World!
+  p Welcome to #{title}
+  form(method='POST' action='')
+    div.textbox-container
+      label(for='mqttHostName') MQTT Hostname: 
+      input.textbox.mqttHostname-textbox(type='text' placeholder='localhost' name='mqttHostName')
+    div.textbox-container
+      label(for='mqttHostPort') Port Number: 
+      input.textbox.mqttPort-textbox(type='text' placeholder='1883' name='mqttHostPort')
+    div.checkbox-container
+      input.checkbox.mqttRemember-checkbox(type='checkbox' name='mqttRemember')
+      label(for='mqttRemember') Remember Data?
+    div
+      input(type='submit' name='mqttHostFormSubmit' value='Connect')
+

@@ -1,0 +1,41 @@
+extends layout
+
+block content
+  div.nav-title-bar
+    div.nav-title-h1-block
+      div.nav-title-h1 ZigFi
+    div.nav-title-burger-block
+      div.nav-title-burger_button-box
+        img.nav-title-burger_button-img(src='images/hamburger_icon.svg')
+  div.options-bar
+    div.options-bar_widget-block
+      div.options-bar_widget
+        div.options-bar_widget_add-device.options-bar_widget_button
+        div.options-bar_widget_text Add
+      div.options-bar_widget
+        div.options-bar_widget_remove-device.options-bar_widget_button
+        div.options-bar_widget_text Remove
+      div.options-bar_widget
+        div.options-bar_widget_edit-server.options-bar_widget_button
+        div.options-bar_widget_text Edit
+  div.content-block
+    each group in groups
+      div.group-block(data-groupName=group.name)
+        div.group-block_text-expando-block
+          div.group-block_text #{group.name}
+          div.group-block_expando_block
+            div.group-block_expando
+              img.group-block_expando_img(src='/images/expando_close_arrow.svg')
+        each device in group.devices
+          div.device-block(data-deviceName=device.name)
+            div.device-block_text #{device.name}
+            div.device-control-block
+              each control in device.controls
+                - var controlType = 'device-control_widget_' + control.type;
+                div.device-control_widget
+                  div.device-control_widget_name-block
+                    span.device-control_widget_name_text
+                  div.device-control_widget_data-block(class = controlType data-control=control)
+                  div.device-control_widget_refresh-block
+                    img.device_control_widget_refresh-image(src='/images/refresh_image_48x48px.svg')
+              br
