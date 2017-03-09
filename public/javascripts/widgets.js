@@ -78,7 +78,7 @@ $(() => {
     var new_text = (old_ctrl.value) ? 'OFF' : 'ON';
     var new_ctrl = {
       type: old_ctrl.type,
-      value: new_text
+      value: (new_text == 'ON')
     };
     element.attr('data-control', JSON.stringify(new_ctrl));
     element.text(new_text.toString());
@@ -129,13 +129,14 @@ function deviceControlWidget_updateDataPost(el, control, callback){
   var device = el.closest('.device-block').attr('data-devicename');
   var group = el.closest('.group-block').attr('data-groupname');
   var topic_path = [group,device].join('/');
+  var JSON_ctrl = JSON.stringify(control);
 
   $.ajax({
     url: "/dashboard",
     data: {
       cmd: "update_data",
       topic: topic_path,
-      payload: control
+      payload: JSON_ctrl
     },
     type: "POST",
     dataType: "json"
