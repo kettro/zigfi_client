@@ -53,11 +53,20 @@ $(() => {
     var device = element.closest('.device-block').attr('data-devicename');
     var group = element.closest('.group-block').attr('data-groupname');
     var topic_path = [group,device].join('/');
+    var ajax_data = {
+      cmd: "read_devdata",
+      topic: topic_path,
+      payload: {
+        grp_name: group,
+        dev_name: device,
+        ctrl_name: control
+      }
+    };
 
     $.ajax({
       url: "/dashboard",
       data: {
-        cmd: "read_data",
+        cmd: "read_devdata",
         topic: topic_path,
         payload: control
       },

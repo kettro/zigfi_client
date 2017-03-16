@@ -23,9 +23,9 @@
 @nav-title-bar_bg-color: LightSteelBlue;
 
 // Sizes
-@control_widget_width: 11em;
+@control_widget_width: 16em;
 @control_widget_height: 2.3em;
-@control_widget_data-block_width: (@control_widget_width - (2 * @control_widget_height + 0.6em));
+@control_widget_data-block_width: 6em;
 @nav-title-bar_height: 100px;
 
 
@@ -199,6 +199,15 @@ div.device-control_widget {
   padding: 5px;
   background-color: @control_widget_bg-color;
   direction: ltr;
+  position: relative;
+}
+
+.device-control_widget_name-block{
+  display: inline-block;
+  margin-left: 0.75em;
+  float: left;
+  position: absolute;
+  left: 0;
 }
 
 .device-control_widget_data-block {
@@ -206,6 +215,8 @@ div.device-control_widget {
   display: inline-block;
   color: @control_widget_font-color;
   text-align: center;
+  float: right;
+  margin-right: 2.7em;
 }
 
 .device-control_widget_status {
@@ -258,8 +269,9 @@ div.device-control_widget {
 }
 
 .device-control_widget_refresh-block {
-  position: relative;
-  margin-right: 5px;
+  position: absolute;
+  right: 0;
+  margin-right: 7px;
   display: inline-block;
   width: @control_widget_height;
   height: @control_widget_height;
