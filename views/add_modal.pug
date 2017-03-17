@@ -1,0 +1,27 @@
+div.options-modal_add-block
+  div.options-modal_title-block
+    span.options-modal_title-text Add Items
+  div.options-modal_groups-block
+    div.options-modal_groups-title-block
+      span.options-modal_groups-title-text Add a Group
+      div.options-modal_expando
+        //img.expando_img(src='/images/expando_close_arrow.svg')
+    div.options-modal_groups-add-block
+  div.options-modal_devices-block
+    div.options-modal_devices-title-block
+      span.options-modal_devices-title-text Add a Device
+      div.options-modal_expando
+        //img.expando_img(src='/images/expando_close_arrow.svg')
+    div.options-modal_devices-root-block
+      each device in dev_unconn
+        div.options-modal_devices-add-new-block
+          div.options-modal_devices-add-new_title-block
+            span.options-modal_devices-add-new_title-text
+            div.options-modal_expando
+              //img.expando_img(src='/images/expando_close_arrow.svg')
+          div.options-modal_devices-add-new_options
+            div.modal_devices_id-block ID = #{device.id}
+            div.modal_devices_controls-block
+  div.options-modal_ok-cancel-block
+    div.options-modal_cancel-button Cancel
+    div.options-modal_ok-button OK

@@ -5,25 +5,30 @@ const mqtt = require('mqtt');
 var fs = require('fs');
 
 var host;
+var server_options = {
+  servers: [{
+    host: '159.203.56.195',
+    port: 1883,
+    protocol: 'mqtt'
+  }]
+};
 
 router.get('/', (req, res, next) => {
   if(req.session.hostname == undefined){
   }
-  options = {
-    servers: [{
-      host: '159.203.56.195',
-      port: 1883,
-      protocol: 'mqtt'
-    }]
-  };
 
-  var mqtt_client = mqtt.connect(options);
+  var curr_topic = generateTopicID();
+  var connman_request = {
+
+  };
+  var mqtt_client = mqtt.connect(server_options);
   mqtt_client.on('connect', () => {
-    var topic = generateTopicID();
-    mqtt_client.subscribe(topic, (err, granted) => {
+    mqtt_client.subscribe(curr_topic, (err, granted) => {
+      // When gateway is functional, make request for read_connman
       fs.readFile('example.json', 'utf8', (err, data) => {
-        mqtt_client.publish(topic, data, () => {
-          console.log("published");
+      // When the gateway is functional, replace topic with the mgmt topic
+        mqtt_client.publish(curr_topic, data, () => {
+          console.log("Published read_connman");
         });
       });
     });
@@ -47,14 +52,62 @@ router.get('/', (req, res, next) => {
   });
 });
 
+router.get('/:type', (req, res, next) => {
+  console.log(req.params);
+  var type = req.params.type;
+  switch(type){
+    case 'add':{
+      var add_modal;
+      // Need to query the server for the unconns
+      queryReadMan("read_unconnman", (unconnman) => {
+        console.log(unconnman);
+        res.render('add_modal', {dev_unconn: unconnman}, (err, html) => {
+
+          add_modal = html;
+        });
+        res.status(200).send({modal: add_modal});
+      });
+      break;
+    }
+    case 'remove':{
+      break;
+    }
+    case 'settings':{
+      break;
+    }
+  }
+});
+
 router.post('/', (req, res, next) => {
   console.log("Post called");
-  console.log(req.body);
-  return res.send(req.body);
-  // reconnect to the MQTT server
-  // build a JSON request
-  // send out a request to the mqtt server, wait for the response
-  // mqtt_client.on('message', (topic, message) => {});
+  // Relay on the webpage to have a well-formatted JSON value;
+  // probably breaks something if it isn't well formed
+  var curr_topic = generateTopicID();
+  var datagram = buildCommand(req.body, curr_topic);
+  var mqtt_client = mqtt.connect(server_options);
+  mqtt_client.on('connect', () => {
+    mqtt_client.subscribe(curr_topic, (err, granted) => {
+      // When the gateway is functional, replace topic with the mgmt topic
+      mqtt_client.publish(curr_topic, datagram, () => {
+        console.log("published POST message");
+      });
+    })
+  }).on('message', (topic, message) => {
+    // Response at the moment is just going to be the original request
+    console.log("POST reply from server received");
+    var msg = JSON.parse(message);
+    msg.payload = JSON.parse(msg.payload);
+    // To compensate for it not being a real response
+    var new_msg = {
+      cmd: msg.cmd,
+      response: msg.payload
+    };
+    new_msg.response.valid = true;
+    var manifest = JSON.stringify(new_msg);
+    console.log(manifest);
+    res.send(manifest);
+    mqtt_client.end();
+  });
 });
 
 
@@ -64,18 +117,53 @@ function generateTopicID(){
   return (Math.random()).toString(36).substr(2,9);
 }
 
-function buildCommand(cmd, id, payload){
+function buildCommand(msg, id){
   // Generate a JSON package for sending via an ajax call
+  // payload is stringified on the client-side
+  var payload = JSON.parse(msg.payload);
   var request = {
-    cmd: cmd,
+    cmd: msg.cmd,
     topic: id,
-    payload: payload
+    payload: msg.payload
   };
-  return JSON.stringify(request);
+  var json = JSON.stringify(request);
+  console.log(json);
+  return json;
+}
+
+function queryReadMan(cmd, callback){
+  var curr_topic = generateTopicID();
+  var datagram = JSON.stringify({
+    cmd: cmd,
+    topic: curr_topic,
+    payload: '{}'
+  });
+  var mqtt_client = mqtt.connect(server_options);
+  mqtt_client.on('connect', () => {
+    mqtt_client.subscribe(curr_topic, (err, granted) => {
+      mqtt_client.publish(curr_topic, datagram, () => {
+        console.log("QueryReadMan pub made");
+      });
+    });
+  }).on('message', (topic, message) => {
+    // Response at the moment is just going to be the original request
+    // source from a file, as there isn't anything for me yet
+    fs.readFile('example_unconnman.json', 'utf8', (err, data) => {
+      mqtt_client.end();
+      var manifest = JSON.parse(data).response.manifest;
+      callback(manifest);
+    });
+  });
 }
 
 function parseCommand(msg){
+  // In some cases, manifest is returned as an object, not an array
+  // for example: read_connman returns an array, but read_devdata is an obj
+  // The difference is in what the commands are requesting: if the commands are
+  // requesting info on all x in y, then it will return an array. For info on
+  // a single item (eg, control), the manifest is an object of the returned values
   var manifest = [];
+  var topic = [];
   var valid = 0;
   var command = msg.cmd.split("_");
   var res = msg.response;
@@ -97,33 +185,55 @@ function parseCommand(msg){
       break;
     }
     case "read":{
-
       switch(target){
         case "connman":
         case "unconnman":{
-          for(var group_index in res.manifest){
-            manifest.push(res.manifest[group_index]);
+          manifest = res.manifest;
+          break;
+        }case "ctrlman":
+          topic.push(res.dev_name);
+        case "devman":
+          topic.unshift(res.grp_name);
+        case "grpman":
+          manifest = {};
+          manifest["topic"] = topic;
+          manifest["manifest"] = res.manifest;
+          break;
+        case "devdata":{
+          topic = [res.grp_name, res.dev_name, res.ctrl_name].join('/');
+          manifest = {
+            topic: topic,
+            manifest: res.manifest
           }
-          break;
-        }case "devman":{
-          break;
-        }case "grpman":{
-          break;
-        }case "ctrlman":{
-          break;
-        }case "devdata":{
           break;
         }
       }
       break;
     }
     case "update":{
-      valid = response_body.valid;
+      valid = res.valid;
       switch(target){
-        case "dev":{
-        }case "grp":{
+        case "dev":
+          topic.push(res.dev_name);
+        case "grp":{
+          topic.unshift(res.grp_name);
+          var new_data = {name: res.name};
+          manifest = {
+            topic: topic,
+            new_data: new_data
+          };
           break;
         }case "devdata":{
+          var topic = [res.grp_name, res.dev_name, res.ctrl_name].join('/');
+          var new_data = {
+            name: res.name,
+            type: res.type,
+            value: res.value
+          };
+          manifest = {
+            topic: topic,
+            new_data: new_data
+          };
           break;
         }
       }
@@ -131,7 +241,7 @@ function parseCommand(msg){
 
     }
     case "destroy":{
-      valid = response_body.valid;
+      valid = res.valid;
       switch(target){
         case "dev":{
           break;

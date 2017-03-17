@@ -42,6 +42,7 @@ $(() => {
     }
   };
   // add Event Listeners
+  // The Refresh block
   $('.device-control_widget_refresh-block').on("click", (ev) => {
     ev.stopPropagation();
     var element = $(ev.target);
@@ -56,20 +57,16 @@ $(() => {
     var ajax_data = {
       cmd: "read_devdata",
       topic: topic_path,
-      payload: {
+      payload: JSON.stringify({
         grp_name: group,
         dev_name: device,
         ctrl_name: control
-      }
+      })
     };
 
     $.ajax({
       url: "/dashboard",
-      data: {
-        cmd: "read_devdata",
-        topic: topic_path,
-        payload: control
-      },
+      data: ajax_data,
       type: "POST",
       dataType: "json"
     }).done((res) => {
@@ -78,6 +75,7 @@ $(() => {
     });
   });
 
+  // Boolean Control
   $('.device-control_widget_boolean').on("click", (ev) => {
     ev.stopPropagation();
     var element = $(ev.target); // aka, the textbox
@@ -86,6 +84,7 @@ $(() => {
     var curr_text = element.text();
     var new_text = (old_ctrl.value) ? 'OFF' : 'ON';
     var new_ctrl = {
+      name: old_ctrl.name,
       type: old_ctrl.type,
       value: (new_text == 'ON')
     };
@@ -97,6 +96,7 @@ $(() => {
     });
   });
 
+  // Group block expando
   $('.group-block_expando').on('click', (ev) => {
     var el = $(ev.target); // == to the image
     var group_block = el.closest('.group-block');
@@ -122,6 +122,7 @@ function deviceControlWidget_gradientSliderOnChange(tag){
   var data_block = el.closest('.device-control_widget_data-block');
   var old_ctrl = JSON.parse(data_block.attr('data-control'));
   var new_ctrl = {
+    name: old_ctrl.name,
     type: old_ctrl.type,
     value: parseInt(tag.value)
   };
@@ -134,19 +135,25 @@ function deviceControlWidget_gradientSliderOnChange(tag){
   });
 }
 
+// update_devdata request builder
 function deviceControlWidget_updateDataPost(el, control, callback){
   var device = el.closest('.device-block').attr('data-devicename');
   var group = el.closest('.group-block').attr('data-groupname');
   var topic_path = [group,device].join('/');
-  var JSON_ctrl = JSON.stringify(control);
+  var data = {
+    cmd: "update_devdata",
+    payload: JSON.stringify({
+      grp_name: group,
+      dev_name: device,
+      ctrl_name: control.name,
+      type: control.type,
+      value: control.value
+    })
+  };
 
   $.ajax({
     url: "/dashboard",
-    data: {
-      cmd: "update_data",
-      topic: topic_path,
-      payload: JSON_ctrl
-    },
+    data: data,
     type: "POST",
     dataType: "json"
   }).done((res) => {
