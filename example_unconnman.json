@@ -1,0 +1,19 @@
+{
+  "cmd": "read_unconnman",
+  "response": {
+    "manifest": [
+      {
+        "id": 123456789,
+        "type": "lightbulb"
+      },
+      {
+        "id": 123123123,
+        "type": "temperature"
+      },
+      {
+        "id": 345567234,
+        "type": "HVAC"
+      }
+    ]
+  }
+}
