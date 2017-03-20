@@ -1,49 +1,12 @@
 $(() => {
   // Add Markup
-  var _preload_markup__bool_els = $('.device-control_widget_boolean');
-  for(var i = 0; i < _preload_markup__bool_els.length; i++){
-    var el = $(_preload_markup__bool_els[i]);
-    var control_el = el.closest('.device-control_widget_data-block');
-    var control_val = JSON.parse(control_el.attr('data-control'));
-    if(control_val.type == 'boolean'){
-      el.text((control_val.value ? 'ON' : 'OFF'));
-    }
-  }
-
-  var _preload_markup__grad_els = $('.device-control_widget_gradient');
-  for(var i = 0; i < _preload_markup__grad_els.length; i++){
-    var el = $(_preload_markup__grad_els[i]);
-    var control_el = el.closest('.device-control_widget_data-block');
-    var control_val = JSON.parse(control_el.attr('data-control'));
-    var input_span = $('<span>', {
-      'class': 'device-control_widget_gradient-value'
-    });
-
-    var input_slider = $('<input>', {
-      'class': 'device-control_widget_gradient-slider',
-      'type': 'range',
-      'step': 1,
-      'min': 0,
-      'max': 10,
-      'value': control_val.value,
-      'onchange': "deviceControlWidget_gradientSliderOnChange(this)"
-    });
-    input_span.text(control_val.value);
-    control_el.append(input_span);
-    control_el.append(input_slider);
-  }
-
-  var _preload_markup__status_els = $('.device-control_widget_status');
-  for(var i = 0; i < _preload_markup__status_els.length; i++){
-    var el = $(_preload_markup__status_els[i]);
-    var control_val = JSON.parse(el.attr('data-control'));
-    if(control_val.type == 'status'){
-      el.text(control_val.value);
-    }
-  };
+  _premarkup_grad_($('.device-control_widget_gradient'));
+  _premarkup_bool_($('.device-control_widget_boolean'));
+  _premarkup_status_($('.device-control_widget_status'));
   // add Event Listeners
+  var root_el = $('.content-block');
   // The Refresh block
-  $('.device-control_widget_refresh-block').on("click", (ev) => {
+  root_el.on('click', '.device-control_widget_refresh-block', (ev) => {
     ev.stopPropagation();
     var element = $(ev.target);
     // Get the control data from the DOM
@@ -76,7 +39,7 @@ $(() => {
   });
 
   // Boolean Control
-  $('.device-control_widget_boolean').on("click", (ev) => {
+  root_el.on('click', '.device-control_widget_boolean', (ev) => {
     ev.stopPropagation();
     var element = $(ev.target); // aka, the textbox
     var old_ctrl = JSON.parse(element.attr('data-control'));
@@ -97,7 +60,7 @@ $(() => {
   });
 
   // Group block expando
-  $('.group-block_expando').on('click', (ev) => {
+  root_el.on('click', '.group-block_expando', (ev) => {
     var el = $(ev.target); // == to the image
     var group_block = el.closest('.group-block');
     var device_block = group_block.find('.device-block');
@@ -160,4 +123,49 @@ function deviceControlWidget_updateDataPost(el, control, callback){
     // add in the function to execute after the JSON is returned
     return callback(res);
   });
+}
+
+function _premarkup_grad_(els){
+  for(var i = 0; i < els.length; i++){
+    var el = $(els[i]);
+    var control_el = el.closest('.device-control_widget_data-block');
+    var control_val = JSON.parse(control_el.attr('data-control'));
+    var input_span = $('<span>', {
+      'class': 'device-control_widget_gradient-value'
+    });
+
+    var input_slider = $('<input>', {
+      'class': 'device-control_widget_gradient-slider',
+      'type': 'range',
+      'step': 1,
+      'min': 0,
+      'max': 10,
+      'value': control_val.value,
+      'onchange': "deviceControlWidget_gradientSliderOnChange(this)"
+    });
+    input_span.text(control_val.value);
+    control_el.append(input_span);
+    control_el.append(input_slider);
+  }
+}
+
+function _premarkup_bool_(els){
+  for(var i = 0; i < els.length; i++){
+    var el = $(els[i]);
+    var control_el = el.closest('.device-control_widget_data-block');
+    var control_val = JSON.parse(control_el.attr('data-control'));
+    if(control_val.type == 'boolean'){
+      el.text((control_val.value ? 'ON' : 'OFF'));
+    }
+  }
+}
+
+function _premarkup_status_(els){
+  for(var i = 0; i < els.length; i++){
+    var el = $(els[i]);
+    var control_val = JSON.parse(el.attr('data-control'));
+    if(control_val.type == 'status'){
+      el.text(control_val.value);
+    }
+  };
 }

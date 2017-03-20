@@ -13,7 +13,7 @@ var server_options = {
   }]
 };
 
-router.get('/', (req, res, next) => {
+router.get('/', (req, res, next) => { 
   if(req.session.hostname == undefined){
   }
 
@@ -37,6 +37,7 @@ router.get('/', (req, res, next) => {
     // unsubscribe from the topic
     // Prevent any other messages coming through: as already got the one you need
     mqtt_client.unsubscribe(topic);
+    mqtt_client.end();
     console.log("Topic = " + topic);
     var msg = JSON.parse(message);
     var manifest = parseCommand(msg);
@@ -48,7 +49,6 @@ router.get('/', (req, res, next) => {
         '/javascripts/options_menu.js'
       ]
     });
-    mqtt_client.end();
   });
 });
 
@@ -59,13 +59,17 @@ router.get('/:type', (req, res, next) => {
     case 'add':{
       var add_modal;
       // Need to query the server for the unconns
+      console.log("getting unconns and etc");
       queryReadMan("read_unconnman", (unconnman) => {
         console.log(unconnman);
-        res.render('add_modal', {dev_unconn: unconnman}, (err, html) => {
-
-          add_modal = html;
-        });
-        res.status(200).send({modal: add_modal});
+        queryReadMan("read_grpman", (grpman) => {
+          console.log(grpman);
+          res.render('add_modal', {dev_unconn: unconnman, group_list: grpman}, (err, html) => {
+            if(err != null) console.log(err);
+            add_modal = html;
+          });
+          res.send({modal: add_modal});
+        })
       });
       break;
     }
@@ -73,6 +77,21 @@ router.get('/:type', (req, res, next) => {
       break;
     }
     case 'settings':{
+      break;
+    }
+  }
+});
+
+router.post('/:type', (req, res, next) => {
+  console.log("post called to the :type listener");
+  var type = req.params.type;
+  switch(type){
+    case 'add':{
+      createItemCall(req.body.cmd, JSON.parse(req.body.payload), (reply) => {
+        // compensate for no response: payload == response
+        var response = JSON.parse(reply.payload);
+        res.status(200).send({response: response});
+      });
       break;
     }
   }
@@ -148,12 +167,48 @@ function queryReadMan(cmd, callback){
   }).on('message', (topic, message) => {
     // Response at the moment is just going to be the original request
     // source from a file, as there isn't anything for me yet
-    fs.readFile('example_unconnman.json', 'utf8', (err, data) => {
-      mqtt_client.end();
-      var manifest = JSON.parse(data).response.manifest;
+    mqtt_client.unsubscribe(topic);
+    mqtt_client.end();
+    var msg = JSON.parse(message);
+    if(msg.cmd == 'read_unconnman'){
+      fs.readFile('example_unconnman.json', 'utf8', (err, data) => {
+        mqtt_client.unsubscribe(topic);
+        mqtt_client.end();
+        var manifest = JSON.parse(data).response.manifest;
+        callback(manifest);
+      });
+    }else if(msg.cmd == 'read_grpman'){
+      // = JSON.parse(data).response.manifest
+      console.log(msg);
+      var manifest = [
+        { name: "upper-level" },
+        { name: "main-level" }
+      ];
       callback(manifest);
-    });
+    }
   });
+}
+
+function createItemCall(cmd, payload, callback){
+  var curr_topic = generateTopicID();
+  var datagram = JSON.stringify({
+    cmd: cmd,
+    topic: curr_topic,
+    payload: JSON.stringify(payload) // Not sure the error, Stringify pumps out a strange bit here
+  });
+  var mqtt_client = mqtt.connect(server_options);
+  mqtt_client.on('connect', () => {
+    mqtt_client.subscribe(curr_topic, (err, granted) => {
+      mqtt_client.publish(curr_topic, datagram, () => {
+        console.log("createItem pub made");
+      });
+    });
+  }).on('message', (topic, message) => {
+    mqtt_client.unsubscribe(topic);
+    mqtt_client.end();
+    var msg = JSON.parse(message);
+    callback(msg);
+  })
 }
 
 function parseCommand(msg){

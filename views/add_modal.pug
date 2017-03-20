@@ -1,27 +1,40 @@
 div.options-modal_add-block
+  div.options-modal_close-window X
   div.options-modal_title-block
     span.options-modal_title-text Add Items
   div.options-modal_groups-block
-    div.options-modal_groups-title-block
-      span.options-modal_groups-title-text Add a Group
+    div.options-modal_section-title-block
+      span.options-modal_section-title-text Add a Group
       div.options-modal_expando
-        //img.expando_img(src='/images/expando_close_arrow.svg')
-    div.options-modal_groups-add-block
+        img.expando_img(src='/images/expando_open_arrow.svg')
+    div.options-modal_groups-add-block.hidden
+      span.options-modal_groups-add-name-label Name:
+      input.options-modal_groups-add-name(type='text' placeholder="Enter Group Name")
+      div.options-modal_groups-add-name-confirm Add Group
   div.options-modal_devices-block
-    div.options-modal_devices-title-block
-      span.options-modal_devices-title-text Add a Device
+    div.options-modal_section-title-block
+      span.options-modal_section-title-text Add a Device
       div.options-modal_expando
-        //img.expando_img(src='/images/expando_close_arrow.svg')
-    div.options-modal_devices-root-block
+        img.expando_img(src='/images/expando_open_arrow.svg')
+    div.options-modal_devices-root-block.hidden
       each device in dev_unconn
         div.options-modal_devices-add-new-block
           div.options-modal_devices-add-new_title-block
-            span.options-modal_devices-add-new_title-text
+            span.options-modal_devices-add-new_title-text #{device.type}
             div.options-modal_expando
-              //img.expando_img(src='/images/expando_close_arrow.svg')
-          div.options-modal_devices-add-new_options
+              img.expando_img(src='/images/expando_open_arrow.svg')
+          div.options-modal_devices-add-new_options.hidden
             div.modal_devices_id-block ID = #{device.id}
+            span.options-modal_devices-add-name-label Name:
+            input.options-modal_devices-add-name(type='text' placeholder="Enter Device Name")
+            div.modal_devices_group-selection-block
+              select.modal_devices_group_select-el
+                option.modal_devices_group_select_option(value="__title") Select a Group
+                each grp in group_list
+                  option.modal_devices_group_select_option(value=grp.name) #{grp.name}
             div.modal_devices_controls-block
-  div.options-modal_ok-cancel-block
-    div.options-modal_cancel-button Cancel
-    div.options-modal_ok-button OK
+              div.modal_devices_controls-boolean.modal_devices_controls(data-selected='f') ON/OFF
+              div.modal_devices_controls-gradient.modal_devices_controls(data-selected='f') Gradient
+              div.modal_devices_controls-status.modal_devices_controls(data-selected='f') Status
+            div.modal_devices_ok-block
+              div.modal_devices_ok-button Add Device
