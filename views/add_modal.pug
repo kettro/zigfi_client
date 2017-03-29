@@ -20,7 +20,7 @@ div.options-modal_add-block
       each device in dev_unconn
         div.options-modal_devices-add-new-block
           div.options-modal_devices-add-new_title-block
-            span.options-modal_devices-add-new_title-text #{device.type}
+            span.options-modal_devices-add-new_title-text #{device.id}
             div.options-modal_expando
               img.expando_img(src='/images/expando_open_arrow.svg')
           div.options-modal_devices-add-new_options.hidden
@@ -31,7 +31,7 @@ div.options-modal_add-block
               select.modal_devices_group_select-el
                 option.modal_devices_group_select_option(value="__title") Select a Group
                 each grp in group_list
-                  option.modal_devices_group_select_option(value=grp.name) #{grp.name}
+                  option.modal_devices_group_select_option(value=grp.name) #{grp.grp_name}
             div.modal_devices_controls-block
               div.modal_devices_controls-boolean.modal_devices_controls(data-selected='f') ON/OFF
               div.modal_devices_controls-gradient.modal_devices_controls(data-selected='f') Gradient

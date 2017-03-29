@@ -147,12 +147,17 @@ $(() => {
     var payload = {
       dev_name: device,
       grp_name: group,
+      dev_id: id,
       controls: selected_control_array
     };
     var create_dev = {
       cmd: "create_dev",
       payload: JSON.stringify(payload)
     };
+    //var create_dev = JSON.stringify({
+    //  cmd: "create_dev",
+    //  payload: payload
+    //});
 
     $.ajax({
         url: "/dashboard/add",

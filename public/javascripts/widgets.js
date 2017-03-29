@@ -113,6 +113,7 @@ function deviceControlWidget_updateDataPost(el, control, callback){
       value: control.value
     })
   };
+  console.log(data);
 
   $.ajax({
     url: "/dashboard",
