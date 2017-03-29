@@ -109,11 +109,12 @@ router.post('/', (req, res, next) => {
   }).on('message', (topic, message) => {
     mqtt_client.unsubscribe(curr_topic);
     mqtt_client.end();
-    var msg = JSON.parse(message);
+    //var msg = JSON.parse(message);
     // Bad, but forcing goodness
-    msg.response.valid = true;
-    var manifest = JSON.stringify(msg);
-    res.send(manifest);
+    //var manifest = JSON.stringify(msg);
+    //res.send(manifest);
+    console.log(message);
+    res.send(message);
   });
 });
 
