@@ -156,16 +156,10 @@ function queryReadMan(cmd, callback){
     // Response at the moment is just going to be the original request
     // source from a file, as there isn't anything for me yet
     mqtt_client.unsubscribe(curr_topic);
-    mqtt_client.end();
-    var msg = JSON.parse(message);
-    if(msg.cmd == 'read_unconnman'){
+    mqtt_client.end(false, () => {
+      var msg = JSON.parse(message);
       callback(msg);
-    }else if(msg.cmd == 'read_grpman'){
-      callback(msg)
-    }
-    else{
-      callback(msg);
-    }
+    });
   });
 }
 
