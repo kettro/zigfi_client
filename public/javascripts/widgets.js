@@ -3,6 +3,13 @@ $(() => {
   _premarkup_grad_($('.device-control_widget_gradient'));
   _premarkup_bool_($('.device-control_widget_boolean'));
   _premarkup_status_($('.device-control_widget_status'));
+  // Deferred computation
+  $.ajax({
+    url: '/dashboard/connman',
+    type: 'POST',
+  }).done((result) => {
+    $('.content_block').append(result.elements_html);
+  });
   // add Event Listeners
   var root_el = $('.content-block');
   // The Refresh block

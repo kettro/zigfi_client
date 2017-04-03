@@ -5,6 +5,7 @@ const mqtt = require('mqtt');
 var fs = require('fs');
 
 var host;
+var conn_man;
 var server_options = {
   servers: [{
     host: '159.203.56.195',
@@ -21,32 +22,38 @@ router.get('/', (req, res, next) => {
   var curr_topic = generateTopicID();
 
   var mqtt_client = mqtt.connect(server_options);
-  mqtt_client.on('connect', () => {
-    mqtt_client.subscribe(curr_topic, (err, granted) => {
-      datagram = JSON.stringify({
-        cmd: "read_connman",
-        topic: curr_topic,
-        payload: {}
-      });
-      mqtt_client.publish(client_topic, datagram, () => {
-      });
-    });
+  res.render('dashboard', {
+    scripts: [
+      'javascripts/widgets.js',
+      'javascripts/options_menu.js'
+    ]
   });
-  mqtt_client.on('message', (topic, message) => {
-    // unsubscribe from the topic
-    // Prevent any other messages coming through: as already got the one you need
-    mqtt_client.end();
-    var msg = JSON.parse(message);
-    var manifest = parseCommand(msg);
-    mgmt = manifest;
-    res.render('dashboard', {
-      groups: manifest,
-      scripts: [
-        '/javascripts/widgets.js',
-        '/javascripts/options_menu.js'
-      ]
-    });
-  });
+  //mqtt_client.on('connect', () => {
+  //  mqtt_client.subscribe(curr_topic, (err, granted) => {
+  //    datagram = JSON.stringify({
+  //      cmd: "read_connman",
+  //      topic: curr_topic,
+  //      payload: {}
+  //    });
+  //    mqtt_client.publish(client_topic, datagram, () => {
+  //    });
+  //  });
+  //});
+  //mqtt_client.on('message', (topic, message) => {
+  //  // unsubscribe from the topic
+  //  // Prevent any other messages coming through: as already got the one you need
+  //  mqtt_client.end();
+  //  var msg = JSON.parse(message);
+  //  var manifest = parseCommand(msg);
+  //  mgmt = manifest;
+  //  res.render('dashboard', {
+  //    groups: manifest,
+  //    scripts: [
+  //      '/javascripts/widgets.js',
+  //      '/javascripts/options_menu.js'
+  //    ]
+  //  });
+  //});
 });
 
 router.get('/:type', (req, res, next) => {
@@ -77,6 +84,20 @@ router.get('/:type', (req, res, next) => {
     }
     case 'settings':{
       break;
+    }
+    case 'connman':{
+      var elements_html;
+      queryReadman('read_connman', (connman) => {
+        var manifest = connman.response.manifest;
+        res.render(
+          'elements',
+          {groups: manifest},
+          (err, html) => {
+          if(err != null) console.log(err);
+          elements_html = html;
+        });
+        res.send({elements_html: elements_html});
+      });
     }
   }
 });

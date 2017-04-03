@@ -22,26 +22,5 @@ block content
           img.options-bar_widget_img-settings(src='images/gear_symbol.svg')
         div.options-bar_widget_text Edit
   div.content-block
-    each group in groups
-      div.group-block(data-groupName=group.grp_name)
-        div.group-block_text-expando-block
-          div.group-block_text #{group.grp_name}
-          div.group-block_expando_block
-            div.group-block_expando
-              img.group-block_expando_img(src='/images/expando_close_arrow.svg')
-        each device in group.devices
-          div.device-block(data-deviceName=device.name)
-            -type_name = (device.type != null) ? "("+device.type+")" : ""
-            div.device-block_text #{device.name} #{type_name}
-            div.device-control-block
-              each control in device.controls
-                - var controlType = 'device-control_widget_' + control.type;
-                div.device-control_widget
-                  div.device-control_widget_name-block
-                    span.device-control_widget_name_text #{control.name}
-                  div.device-control_widget_data-block(class = controlType data-control=control)
-                  div.device-control_widget_refresh-block
-                    img.device_control_widget_refresh-image(src='/images/refresh_image_48x48px.svg')
-              br
   div.options-modal-block.hidden
     div.options-modal_interface
