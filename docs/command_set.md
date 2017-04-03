@@ -112,7 +112,14 @@ Topic: /deviceid/mgmt
   "payload":{
     "dev_name": STRING,
     "grp_name": STRING,
-    "dev_id": INTEGER | STRING
+    "dev_id": STRING
+    "controls:[
+      {
+        name: STRING,
+        type: STRING,
+        value: STRING | INTEGER | BOOLEAN | NONE
+      }
+    ]
   }
 }
 ```
@@ -127,8 +134,8 @@ Response:
     "controls": [
       {
         "type": STRING,
-        "value": STRING | INTEGER | BOOLEAN,
         "name": STRING
+        "value": STRING | INTEGER | BOOLEAN,
       }
     ]
   }
@@ -156,51 +163,6 @@ Response:
   "response":{
     "valid" INTEGER,
     "grp_name": STRING,
-  }
-}
-```
-
-###create_devctrl
-Create a control for a given device. This control must be valid for the
-device type (eg: Temperature Sensors have no gradient controls).
-
-Request:
-```json
-{
-  "cmd": "create_devctrl",
-  "topic": STRING,
-  "payload":{
-    "grp_name": STRING,
-    "dev_name": STRING,
-    "id": INTEGER,
-    "type": STRING,
-    "control": [
-      {
-        "type": STRING,
-        "value": STRING | INTEGER | BOOLEAN,
-        "name": STRING
-      }
-    ]
-  }
-}
-```
-Response:
-```json
-{
-  "cmd": "create_devctrl",
-  "response":{
-    "valid": INTEGER,
-    "grp_name": STRING,
-    "dev_name": STRING,
-    "id": INTEGER,
-    "type": STRING,
-    "control": [
-      {
-        "type": STRING,
-        "value": STRING | INTEGER | BOOLEAN,
-        "name": STRING
-      }
-    ]
   }
 }
 ```
@@ -239,7 +201,7 @@ Response:
               {
                 "name": STRING,
                 "type": STRING,
-                "value": STRING | INTEGER | BOOLEAN,
+                "value": STRING | INTEGER | BOOLEAN | NONE,
               }
             ]
           }
@@ -415,16 +377,14 @@ Request:
   "payload":{
     "grp_name": STRING,
     "dev_name": STRING,
-    "info": {
-      "name": STRING,
-      "controls": [
-        {
-          "name": STRING,
-          "type": STRING,
-          "value": STRING | INTEGER | BOOLEAN
-        }
-      ]
-    }
+    "name": STRING,
+    "controls": [
+      {
+        "name": STRING,
+        "type": STRING,
+        "value": STRING | INTEGER | BOOLEAN
+      }
+    ]
   }
 }
 ```
@@ -436,14 +396,13 @@ Response:
     "valid": INTEGER,
     "grp_name": STRING,
     "dev_name": STRING,
-    "info": {
-      "name": STRING,
-      "controls": [
-        {
-          "name": STRING,
-        }
-      ]
-    }
+    "name": STRING,
+    "controls": [
+      {
+        "name": STRING,
+      }
+    ]
+    
   }
 }
 ```
@@ -489,7 +448,7 @@ Request:
     "ctrl_name": STRING,
     "name": STRING,
     "type": STRING,
-    "value": STRING | INTEGER | BOOLEAN
+    "value": STRING | INTEGER | BOOLEAN | NONE
     }
   }
 }
@@ -505,7 +464,7 @@ Response:
     "ctrl_name": STRING,
     "name": STRING,
     "type": STRING,
-    "value": STRING | INTEGER | BOOLEAN
+    "value": STRING | INTEGER | BOOLEAN | NONE
   }
 }
 ```
@@ -602,3 +561,4 @@ Response:
 |       | 1     | Invalid: invalid input |
 |       | 2     | Invalid: invalid type  |
 |       | 3     | Invalid: invalid name  |
+|       | 4     | Invalid: Create error  |
